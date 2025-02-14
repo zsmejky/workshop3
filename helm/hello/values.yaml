@@ -1,0 +1,9 @@
+image:
+  repository: pstast/hello-kubernetes
+  tag: ""
+
+replicaCount: 2
+
+ingress:
+  name: exprm-k8s-exprm1
+  host: default.exprm.gopay.com

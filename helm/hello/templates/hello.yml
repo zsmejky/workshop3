@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "hello.fullname" . }}
+  labels:
+    {{- include "hello.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "hello.selectorLabels" . | nindent 6 }}
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        {{- include "hello.labels" . | nindent 8 }}
+    spec:
+      #      nodeSelector:
+      #        role-app: app
+
+      containers:
+        - name: hello
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          ports:
+            - containerPort: 8080
+
+          env:
+            #            - name: MESSAGE
+            #              value: "Nazdar!"
+
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+
+            - name: KUBERNETES_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+
+            - name: KUBERNETES_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+
+#          resources:
+#            requests:
+#              cpu: 500m
+#              memory: 100Mi
+#            limits:
+#              cpu: 2000m
+#              memory: 200Mi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "hello.fullname" . }}
+  labels:
+    {{- include "hello.labels" . | nindent 4 }}
+spec:
+  #clusterIP: None   # DNS returns pod's IP, does not assign cluster IP
+  ports:
+    - protocol: TCP
+      port: 31001
+      targetPort: 8080
+  selector:
+    {{- include "hello.selectorLabels" . | nindent 4 }}
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "hello.fullname" . }}
+  labels:
+    {{- include "hello.labels" . | nindent 4 }}
+  annotations:
+    alb.ingress.kubernetes.io/group.name: {{ .Values.ingress.name }}
+    alb.ingress.kubernetes.io/load-balancer-name: {{ .Values.ingress.name }}
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-Res-2021-06
+
+    alb.ingress.kubernetes.io/healthcheck-path: '/'
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '5'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '4'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+
+spec:
+  ingressClassName: alb
+  rules:
+    - host: {{ .Values.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "hello.fullname" $ }}
+                port:
+                  number: 31001

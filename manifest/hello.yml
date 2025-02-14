@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello
+  namespace: pstastny
+spec:
+  selector:
+    matchLabels:
+      app: hello
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+#      nodeSelector:
+#        role-app: app
+
+      containers:
+        - name: hello
+          image: pstast/hello-kubernetes:1.0
+          ports:
+            - containerPort: 8080
+
+          env:
+#            - name: MESSAGE
+#              value: "Nazdar!"
+
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+
+            - name: KUBERNETES_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+
+            - name: KUBERNETES_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+
+#          resources:
+#            requests:
+#              cpu: 500m
+#              memory: 100Mi
+#            limits:
+#              cpu: 2000m
+#              memory: 200Mi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello
+  namespace: pstastny
+spec:
+  ports:
+    - protocol: TCP
+      port: 31001
+      targetPort: 8080
+  selector:
+    app: hello
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello
+  namespace: pstastny
+  annotations:
+    alb.ingress.kubernetes.io/group.name: exprm-k8s-exprm1
+    alb.ingress.kubernetes.io/load-balancer-name: exprm-k8s-exprm1
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-Res-2021-06
+
+    alb.ingress.kubernetes.io/healthcheck-path: '/'
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '5'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '4'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+
+spec:
+  ingressClassName: alb
+  rules:
+    - host: pstastny.exprm.gopay.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hello
+                port:
+                  number: 31001
