@@ -7,3 +7,10 @@ replicaCount: 2
 ingress:
   name: exprm-k8s-exprm1
   host: default.exprm.gopay.com
+
+nodeSelector: {}
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 64Mi

@@ -14,8 +14,10 @@ spec:
       labels:
         {{- include "hello.labels" . | nindent 8 }}
     spec:
-      #      nodeSelector:
-      #        role-app: app
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
 
       containers:
         - name: hello
@@ -24,9 +26,6 @@ spec:
             - containerPort: 8080
 
           env:
-            #            - name: MESSAGE
-            #              value: "Nazdar!"
-
             - name: KUBERNETES_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -42,13 +41,8 @@ spec:
                 fieldRef:
                   fieldPath: spec.nodeName
 
-#          resources:
-#            requests:
-#              cpu: 500m
-#              memory: 100Mi
-#            limits:
-#              cpu: 2000m
-#              memory: 200Mi
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
 
 ---
 
