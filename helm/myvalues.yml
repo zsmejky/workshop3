@@ -7,10 +7,10 @@ ingress:
   name: exprm-k8s-exprm1
   host: pstastny.exprm.gopay.com
 
-nodeSelector:
-  role-app: app
+#nodeSelector:
+#  role-app: app
 
-resources:
-  requests:
-    cpu: 10m
-    memory: 4Gi
+#resources:
+#  requests:
+#    cpu: 10m
+#    memory: 4Gi

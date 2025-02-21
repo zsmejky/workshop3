@@ -4,6 +4,9 @@ metadata:
   name: debian-utils
   namespace: pstastny
 spec:
+#  nodeSelector:
+#    role-app: app
+
   containers:
     - name: debian-utils
       image: pstast/debian-utils
