@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hello
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hello
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    # ALB exprm k8s
+    - from:
+        - ipBlock:
+            cidr: 10.24.8.0/23
+        - ipBlock:
+            cidr: 10.24.12.0/23
+      ports:
+        - port: 8080
+          protocol: TCP
