@@ -23,9 +23,6 @@ spec:
             - containerPort: 8080
 
           env:
-#            - name: MESSAGE
-#              value: "Nazdar!"
-
             - name: KUBERNETES_NAMESPACE
               valueFrom:
                 fieldRef:
