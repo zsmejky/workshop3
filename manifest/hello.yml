@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hello
-  namespace: pstastny
+  namespace: <NAMESPACE>
 spec:
   selector:
     matchLabels:
@@ -52,7 +52,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: hello
-  namespace: pstastny
+  namespace: <NAMESPACE>
 spec:
   ports:
     - protocol: TCP
@@ -67,7 +67,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: hello
-  namespace: pstastny
+  namespace: <NAMESPACE>
   annotations:
     alb.ingress.kubernetes.io/group.name: exprm-k8s-exprm1
     alb.ingress.kubernetes.io/load-balancer-name: exprm-k8s-exprm1
@@ -86,7 +86,7 @@ metadata:
 spec:
   ingressClassName: alb
   rules:
-    - host: pstastny.exprm.gopay.com
+    - host: <NAMESPACE>.exprm.gopay.com
       http:
         paths:
           - path: /
