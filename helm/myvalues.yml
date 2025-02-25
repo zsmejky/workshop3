@@ -1,11 +1,11 @@
 image:
   tag: "1.0"
 
-replicaCount: 1
+replicaCount: 3
 
 ingress:
   name: exprm-k8s-exprm1
-  host: <NAMESPACE>.exprm.gopay.com
+  host: zsmejkal.exprm.gopay.com
 
 #nodeSelector:
 #  role-app: app
